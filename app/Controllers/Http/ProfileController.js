@@ -33,8 +33,20 @@ class ProfileController {
    * @param {Response} ctx.response
    */
 	async store({ request, auth }) {
-		const data = request.only([ 'title', 'image' ]);
-		const profile = Profile.create({ user_id: auth.user.id, ...data });
+		const data = request.only([ 'title' ]);
+		const images = request.file('image', {
+			types: [ 'image' ],
+			size: '2mb'
+		});
+
+		await images.moveAll(Helpers.tmpPath('uploads'), (file) => ({
+			name: `${Date.now()}-${file.clientName}`
+		}));
+
+		if (!images.movedAll()) {
+			return images.errors();
+		}
+		const profile = Profile.create({ ...data, images });
 		return profile;
 	}
 
@@ -49,6 +61,7 @@ class ProfileController {
    */
 	async show({ params }) {
 		const profile = await Profile.findOrFail(params.id);
+		profile.with('user');
 		return profile;
 	}
 
@@ -60,7 +73,10 @@ class ProfileController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-	async update({ params, request, response }) {}
+	async getImage({ params, response }) {
+		const profile = await Profile.findOrFail(params.id);
+		return response.download(Helpers.tmpPath(`uploads/${profile.image}`));
+	}
 
 	/**
    * Delete a profile with id.
@@ -73,7 +89,7 @@ class ProfileController {
 	async destroy({ params, auth, response }) {
 		const profile = await Profile.findOrFail(params.id);
 
-		if (profile.user_id != auth.user.id) {
+		if (profile.username != '777') {
 			return response.status(401);
 		}
 

@@ -24,3 +24,5 @@ Route.get('app', 'AppController.index').middleware([ 'auth' ]);
 Route.group(() => {
 	Route.resource('profile', 'ProfileController').apiOnly();
 }).middleware([ 'auth' ]);
+
+Route.post('profile/:id/image', 'ProfileController.getImage');

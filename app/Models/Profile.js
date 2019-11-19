@@ -4,8 +4,8 @@
 const Model = use('Model');
 
 class Profile extends Model {
-	user() {
-		return this.belongsTo('App/Models/User');
+	getUrl({ path }) {
+		return `${Env.get('APP_URL')}/images/${path}`;
 	}
 }
 

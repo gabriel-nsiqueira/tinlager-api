@@ -8,7 +8,7 @@ class ProfileSchema extends Schema {
 		this.create('profiles', (table) => {
 			table.increments();
 			table
-				.integer('user_id')
+				.integer('price')
 				.unsigned()
 				.notNullable()
 				.references('id')
